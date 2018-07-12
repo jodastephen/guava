@@ -18,13 +18,6 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.Beta;
-import com.google.common.annotations.GwtCompatible;
-import com.google.common.annotations.GwtIncompatible;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.concurrent.LazyInit;
-import com.google.j2objc.annotations.WeakOuter;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,8 +27,17 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
+
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import com.google.common.annotations.Beta;
+import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.concurrent.LazyInit;
+import com.google.j2objc.annotations.WeakOuter;
 
 /**
  * A {@link Multiset} whose contents will never change, with many other important properties
@@ -264,7 +266,11 @@ public abstract class ImmutableMultiset<E> extends ImmutableMultisetGwtSerializa
   @Override
   public ImmutableList<E> asList() {
     ImmutableList<E> result = asList;
-    return (result == null) ? asList = super.asList() : result;
+    return (result == null) ? asList = createList() : result;
+  }
+
+  ImmutableList<E> createList() {
+    return super.asList();
   }
 
   @Override

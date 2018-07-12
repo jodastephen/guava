@@ -16,15 +16,18 @@ package com.google.common.collect;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Multisets.ImmutableEntry;
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.concurrent.LazyInit;
-import java.util.Arrays;
-import java.util.Collection;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link ImmutableMultiset} with zero or more elements.
@@ -150,6 +153,11 @@ class RegularImmutableMultiset<E> extends ImmutableMultiset<E> {
   }
 
   @Override
+  ImmutableList<E> createList() {
+    return new ElementList<>(entries, this);
+  }
+
+  @Override
   boolean isPartialView() {
     return false;
   }
@@ -191,5 +199,35 @@ class RegularImmutableMultiset<E> extends ImmutableMultiset<E> {
   @Override
   public int hashCode() {
     return hashCode;
+  }
+
+  static final class ElementList<E> extends ImmutableList<E> {
+    private final List<Entry<E>> entries;
+    private final ImmutableMultiset<E> delegate;
+
+    ElementList(List<Entry<E>> entries, ImmutableMultiset<E> delegate) {
+      this.entries = entries;
+      this.delegate = delegate;
+    }
+
+    @Override
+    public E get(int index) {
+      return entries.get(index).getElement();
+    }
+
+    @Override
+    public boolean contains(@Nullable Object object) {
+      return delegate.contains(object);
+    }
+
+    @Override
+    public int size() {
+      return entries.size();
+    }
+
+    @Override
+    boolean isPartialView() {
+      return true;
+    }
   }
 }
